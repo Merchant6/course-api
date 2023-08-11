@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,5 +32,15 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Logout
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
+    //Get Details of the currently authenticated user
+    Route::get('/user', function(){
+        $user = auth()->user();
+        return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
+    });
+
+    //Courses
+    // Route::get('/courses/create', [CourseController::class, 'store']);
+    Route::apiResource('/courses', CourseController::class);
+
 });
