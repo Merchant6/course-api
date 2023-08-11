@@ -11,7 +11,7 @@ class UpdateCourseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdateCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => ['min:5', 'max:50'],
+            'description'=> ['min:20', 'max:200'],
+            'price' => ['regex:/^\d{3,5}$/']
         ];
     }
 }

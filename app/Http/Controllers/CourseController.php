@@ -66,7 +66,18 @@ class CourseController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try
+        {
+            $course = $this->model->where('id', $id)
+            ->with(['user:id,name'])
+            ->get(['id', 'user_id', 'title', 'description', 'price']);
+
+            return $course;
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -74,7 +85,28 @@ class CourseController extends Controller
      */
     public function update(UpdateCourseRequest $request, string $id)
     {
-        //
+        try
+        {
+            $data = $request->validated();
+            $course = $this->model->findOrFail($id)->update($data);
+
+            if($course)
+            {
+                return response()->json([
+                    'message' => 'Your course has been updated, head over to lessons page to create your first lesson.'
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'There is an issue updating your course.'
+            ], 422);
+
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
+
     }
 
     /**
@@ -82,6 +114,27 @@ class CourseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try
+        {
+            $course = $this->model->whereId($id)->first();
+            
+
+            if($course)
+            {
+                $course->delete();
+
+                return response()->json([
+                    'message' => 'Your course has been deleted successfully.'
+                ], 200); 
+            }
+
+            return response()->json([
+                'message' => 'There was an error deleting your course.'
+            ], 404); 
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
     }
 }

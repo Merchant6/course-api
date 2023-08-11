@@ -40,7 +40,7 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     //Courses
-    // Route::get('/courses/create', [CourseController::class, 'store']);
+    Route::post('/courses/{id}', [CourseController::class, 'update']);
     Route::apiResource('/courses', CourseController::class);
 
 });
