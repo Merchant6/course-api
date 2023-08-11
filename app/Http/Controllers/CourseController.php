@@ -83,10 +83,11 @@ class CourseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCourseRequest $request, string $id)
+    public function update(UpdateCourseRequest $request,string $id)
     {
         try
         {
+            $this->authorize('update', $this->model);
             $data = $request->validated();
             $course = $this->model->findOrFail($id)->update($data);
 
@@ -116,9 +117,9 @@ class CourseController extends Controller
     {
         try
         {
+            $this->authorize('delete', $this->model);
             $course = $this->model->whereId($id)->first();
             
-
             if($course)
             {
                 $course->delete();
