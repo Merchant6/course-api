@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class CoursePolicy
+class LessonPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class CoursePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Course $course): bool
+    public function view(User $user, Lesson $lesson): bool
     {
         //
     }
@@ -35,27 +35,23 @@ class CoursePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Course $course)
+    public function update(User $user, Lesson $lesson): bool
     {
-        return $user->id === $course->user_id?
-                                Response::allow()
-                                :  Response::deny(json_encode(['message' => 'You do not own this course'])); 
+        //
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Course $course)
+    public function delete(User $user, Lesson $lesson): bool
     {
-        return $user->id === $course->user_id? 
-                                Response::allow()
-                                : Response::deny(json_encode(['message' => 'You do not own this course']));
+        //
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Course $course): bool
+    public function restore(User $user, Lesson $lesson): bool
     {
         //
     }
@@ -63,7 +59,7 @@ class CoursePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Course $course): bool
+    public function forceDelete(User $user, Lesson $lesson): bool
     {
         //
     }

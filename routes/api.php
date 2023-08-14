@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LessonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
@@ -42,5 +43,9 @@ Route::middleware(['auth:api'])->group(function () {
     //Courses
     Route::post('/courses/{id}', [CourseController::class, 'update']);
     Route::apiResource('/courses', CourseController::class);
+
+    //Courses
+    Route::post('/lessons/{id}', [LessonController::class, 'update']);
+    Route::apiResource('/lessons', LessonController::class);
 
 });

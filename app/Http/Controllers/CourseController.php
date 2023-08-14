@@ -11,9 +11,9 @@ class CourseController extends Controller
 {
     protected $model;
 
-    public function __construct(Course $course)
+    public function __construct(Course $model)
     {
-        $this->model = $course;
+        $this->model = $model;
     }
 
     /**
@@ -22,9 +22,7 @@ class CourseController extends Controller
     public function index()
     {
         $courses = $this->model->orderBy('id')->cursorPaginate(15);
-        return response()->json([
-            'data' => $courses
-        ], 200);
+        return $courses;
     }
 
     /**
