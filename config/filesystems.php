@@ -56,6 +56,14 @@ return [
             'throw' => false,
         ],
 
+        'lessons' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/lessons'),
+            'url' => env('APP_URL').'/storage/lessons',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
     ],
 
     /*
