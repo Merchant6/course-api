@@ -87,13 +87,16 @@ class CourseController extends Controller
         {
             $this->authorize('update', $this->model);
             $data = $request->validated();
-            $course = $this->model->findOrFail($id)->update($data);
-
-            if($course)
+            
+            if($data)
             {
-                return response()->json([
-                    'message' => 'Your course has been updated, head over to lessons page to create your first lesson.'
-                ], 200);
+                $course = $this->model->findOrFail($id)->update($data);
+                if($course)
+                {
+                    return response()->json([
+                        'message' => 'Your course has been updated, head over to lessons page to create your first lesson.'
+                    ], 200);
+                }
             }
 
             return response()->json([

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LessonController;
+use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,9 +38,10 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Get Details of the currently authenticated user
     Route::get('/user', function(){
-        // $user = auth()->user();
+        $user = auth()->user();
         // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
-        return Lesson::latest('id')->first();
+        // return Lesson::latest()->first();
+        return;
     });
 
     //Courses

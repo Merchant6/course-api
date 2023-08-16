@@ -13,9 +13,12 @@ class LessonController extends Controller
     use VideoProcessor;
     protected $model;
 
+    protected $publicPath;
+
     public function __construct(Lesson $model)
     {
         $this->model = $model;
+        $this->publicPath = public_path() . '/storage/lessons/';
     }
 
     /**
@@ -103,26 +106,21 @@ class LessonController extends Controller
         try
         {
             $data = $request->validated();
-            $video = $data['video_url'];
-            $videoName = $video->getClientOriginalName();
-
-            if(\Storage::disk('lessons')->exists($videoName))
+            if($data)
             {
-                return response()->json(['message' => 'File already exists']);
-            }
-            
-            $data['video_url'] = config('filesystems.disks.lessons.url'). DIRECTORY_SEPARATOR . $videoName;
-            $course = $this->model->findOrFail($id)->update($data);
+                $lesson = $this->model->findOrFail($id);
+                $lesson->update($data);
 
-            if($course)
-            {
-                return response()->json([
-                    'message' => 'Your lesson has been updated.'
-                ], 200);
+                if($lesson)
+                {
+                    return response()->json([
+                        'message' => 'Your lesson has been updated.'
+                    ], 200);
+                }
             }
 
             return response()->json([
-                'message' => 'There is an issue updating your lesson.'
+                'message' => 'There was an error updating your lesson.'
             ], 422);
 
         }
