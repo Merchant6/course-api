@@ -39,13 +39,20 @@ class LessonController extends Controller
             $video = $data['video'];
             if($video)
             { 
+                
+                if(\Storage::disk('lessons')->exists($video->getClientOriginalName()))
+                {
+                    return response()->json(['message' => 'File already exists']);
+                }
+
                 $processedFile = $this->process($video);
+
                 $course = $this->model->create([
 
                     'course_id' => $data['course_id'],
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'video_url' => config('filesystems.disks.lessons.url'). '/' . $processedFile
+                    'video_url' => config('filesystems.disks.lessons.url'). DIRECTORY_SEPARATOR . $processedFile
 
                 ]);
 

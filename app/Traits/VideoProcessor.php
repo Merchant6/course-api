@@ -12,6 +12,7 @@ trait VideoProcessor
     public function process(object $video)
     {
         $fileName = $video->getClientOriginalName();
+
         $store = $video->storeAs('', $fileName, 'lessons');
         
         return $store;

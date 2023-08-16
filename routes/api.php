@@ -36,8 +36,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Get Details of the currently authenticated user
     Route::get('/user', function(){
-        $user = auth()->user();
-        return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
+        // $user = auth()->user();
+        // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
+        return config('filesystems.disks.lessons.url'). DIRECTORY_SEPARATOR;
     });
 
     //Courses
