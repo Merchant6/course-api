@@ -39,7 +39,7 @@ class LessonController extends Controller
             $video = $data['video'];
             if($video)
             { 
-                
+
                 if(\Storage::disk('lessons')->exists($video->getClientOriginalName()))
                 {
                     return response()->json(['message' => 'File already exists']);
@@ -81,7 +81,18 @@ class LessonController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try
+        {
+            $course = $this->model->where('id', $id)
+            ->with(['course:id,title,description,price'])
+            ->get(['id', 'title', 'description', 'video_url', 'course_id']);
+
+            return $course;
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -89,7 +100,36 @@ class LessonController extends Controller
      */
     public function update(UpdateLessonRequest $request, string $id)
     {
-        //
+        try
+        {
+            $data = $request->validated();
+            $video = $data['video_url'];
+            $videoName = $video->getClientOriginalName();
+
+            if(\Storage::disk('lessons')->exists($videoName))
+            {
+                return response()->json(['message' => 'File already exists']);
+            }
+            
+            $data['video_url'] = config('filesystems.disks.lessons.url'). DIRECTORY_SEPARATOR . $videoName;
+            $course = $this->model->findOrFail($id)->update($data);
+
+            if($course)
+            {
+                return response()->json([
+                    'message' => 'Your lesson has been updated.'
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'There is an issue updating your lesson.'
+            ], 422);
+
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
     }
 
     /**

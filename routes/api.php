@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LessonController;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
@@ -38,7 +39,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/user', function(){
         // $user = auth()->user();
         // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
-        return config('filesystems.disks.lessons.url'). DIRECTORY_SEPARATOR;
+        return Lesson::latest('id')->first();
     });
 
     //Courses

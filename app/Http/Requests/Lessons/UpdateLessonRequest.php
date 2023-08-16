@@ -11,7 +11,7 @@ class UpdateLessonRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class UpdateLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'course_id' => ['strig'],
+            'title' => ['string', 'min:5', 'max:50'],
+            'description'=> ['min:20', 'max:200'],
+            'video_url' => ['file', 'mimetypes:video/mp4,video/avi', 'max:10240']
         ];
     }
 }
