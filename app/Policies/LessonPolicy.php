@@ -21,7 +21,7 @@ class LessonPolicy
      */
     public function view(User $user, Lesson $lesson): bool
     {
-        //
+        
     }
 
     /**
@@ -35,17 +35,17 @@ class LessonPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Lesson $lesson): bool
+    public function update(User $user, string $courseUserId): bool
     {
-        //
+        return $user->id == $courseUserId;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Lesson $lesson): bool
+    public function delete(User $user, string $courseUserId): bool
     {
-        //
+        return $user->id == $courseUserId;
     }
 
     /**

@@ -37,11 +37,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Get Details of the currently authenticated user
-    Route::get('/user', function(){
+    Route::get('/user', function(Lesson $lesson){
         $user = auth()->user();
         // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
         // return Lesson::latest()->first();
-        return;
+        return $lesson->course->user_id;
     });
 
     //Courses

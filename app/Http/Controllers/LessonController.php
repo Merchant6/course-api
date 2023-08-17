@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Lessons\StoreLessonRequest;
 use App\Http\Requests\Lessons\UpdateLessonRequest;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Traits\VideoProcessor;
 use Illuminate\Http\Request;
@@ -86,11 +87,11 @@ class LessonController extends Controller
     {
         try
         {
-            $course = $this->model->where('id', $id)
+            $lesson = $this->model->where('id', $id)
             ->with(['course:id,title,description,price'])
             ->get(['id', 'title', 'description', 'video_url', 'course_id']);
-
-            return $course;
+            
+            return $lesson;
         }
         catch(\Exception $e)
         {
@@ -105,12 +106,14 @@ class LessonController extends Controller
     {
         try
         {
+            $lesson = $this->model->findOrFail($id);
+            $courseUserId = $lesson->course->user_id;
+
+            $this->authorize('update', $courseUserId);
             $data = $request->validated();
             if($data)
             {
-                $lesson = $this->model->findOrFail($id);
                 $lesson->update($data);
-
                 if($lesson)
                 {
                     return response()->json([
@@ -122,6 +125,8 @@ class LessonController extends Controller
             return response()->json([
                 'message' => 'There was an error updating your lesson.'
             ], 422);
+
+            // return $course;
 
         }
         catch(\Exception $e)
@@ -135,6 +140,29 @@ class LessonController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try
+        {
+            $lesson = $this->model->findOrFail($id);
+            $courseUserId = $lesson->course->user_id;
+
+            $this->authorize('delete', $courseUserId);
+            
+            if($lesson)
+            {
+                $lesson->delete();
+
+                return response()->json([
+                    'message' => 'Your lesson has been deleted successfully.'
+                ], 200); 
+            }
+
+            return response()->json([
+                'message' => 'There was an error deleting your lesson.'
+            ], 404); 
+        }
+        catch(\Exception $e)
+        {
+            return $e->getMessage();
+        }
     }
 }

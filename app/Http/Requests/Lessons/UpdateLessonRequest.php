@@ -22,7 +22,6 @@ class UpdateLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'course_id' => ['string'],
             'title' => ['string', 'min:5', 'max:50'],
             'description'=> ['min:20', 'max:200'],
         ];
