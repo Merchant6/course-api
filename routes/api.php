@@ -56,7 +56,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::apiResource('/lessons', LessonController::class);
 
     //Stripe Checkout
-    Route::post('/checkout', [StripeController::class, 'checkout']);
+    Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
     // Route::get('/success', [StripeController::class, 'success'])->name('success');
     // Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
 

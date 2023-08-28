@@ -26,12 +26,29 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store()
     {
-        //coure_id, user_id, status, total_price, stripe_session_id
-        $cartData = $this->cartTotal();
+        $cartTotal = $this->cartTotal();
 
-        return $cartData;
+        //Create the order before payment
+        $createOrder = $this->model->create([
+            'user_id' => auth()->user()->id,
+            'status' => 'pending',
+            'total_price' => $cartTotal,
+        ]);
+
+        if($createOrder)
+        {
+            return response()->json([
+                'message' => 'Your order has been created. Redirecting to checkout to complete your transaction.',
+                'checkout' => route('checkout')                
+            ], 200);
+        }
+
+        return response()->json([
+            'error' => 'There was an error creating your order.',               
+        ], 404);
+
 
     }
 
