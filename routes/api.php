@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RedisCartController;
+use App\Http\Controllers\StripeController;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
@@ -41,7 +44,7 @@ Route::middleware(['auth:api'])->group(function () {
         $user = auth()->user();
         // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
         // return Lesson::latest()->first();
-        return $lesson->course->user_id;
+        return $user;
     });
 
     //Courses
@@ -52,4 +55,19 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/lessons/{id}', [LessonController::class, 'update']);
     Route::apiResource('/lessons', LessonController::class);
 
+    //Stripe Checkout
+    Route::post('/checkout', [StripeController::class, 'checkout']);
+    // Route::get('/success', [StripeController::class, 'success'])->name('success');
+    // Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
+
+    Route::apiResource('/orders', OrderController::class);
+
+    Route::get('/cart', [RedisCartController::class, 'index']);
+    Route::get('/cart/total', [RedisCartController::class, 'cartTotal']);
+    Route::post('/cart', [RedisCartController::class, 'store']);
+
+
 });
+
+Route::get('/success', [StripeController::class, 'success'])->name('success');
+Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
