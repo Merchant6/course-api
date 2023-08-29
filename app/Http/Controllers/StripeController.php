@@ -26,39 +26,48 @@ class StripeController extends Controller
     public function checkout()
     {
         try {
-            $products = Course::all();
+
+            //Get the current user cart from Redis
+            $userId = auth()->user()->id;
+            $pattern = "user:$userId:course:*";
+            $products = $this->getCartData($pattern);
+
+            //Get the unpiad Order
+            $order = $this->order->where('user_id', $userId)->where('status', 'pending')->latest()->first();
+
             $lineItems = [];
             $totalPrice = $this->cartTotal();
-            // foreach ($products as $product) {
-            //     $totalPrice += $product->price;
-            //     $lineItems[] = [
-            //         'price_data' => [
-            //             'currency' => 'usd',
-            //             'product_data' => [
-            //                 'name' => $product->name,
-            //                 'images' => [$product->image]
-            //             ],
-            //             'unit_amount' => $product->price * 100,
-            //         ],
-            //         'quantity' => 1,
-            //     ];
-            // }
+
+            foreach ($products as $product) {
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => $product['course_title'],
+                            // 'images' => 'N/A'
+                        ],
+                        'unit_amount' => $product['course_price'] * 100,
+                    ],
+                    'quantity' => 1,
+                ];
+            }
             
-            // $session = $this->stripe->checkout->sessions->create([
-            //     'line_items' => $lineItems,
-            //     'mode' => 'payment',
-            //     'success_url' => route('checkout.success', [], true) . "?session_id={CHECKOUT_SESSION_ID}",
-            //     'cancel_url' => route('checkout.cancel', [], true),
-            // ]);
+            $session = $this->stripe->checkout->sessions->create([
+                'line_items' => $lineItems,
+                'mode' => 'payment',
+                'success_url' => route('success', [], true) . "?session_id={CHECKOUT_SESSION_ID}",
+                'cancel_url' => route('cancel', [], true),
+            ]);
 
-            // $this->order->status = 'unpaid';
-            // $this->order->total_price = $totalPrice;
-            // $this->order->session_id = $session->id;
-            // $this->order->save();
 
-            // return response()->json([
-            //     'redirectTo' => $session->url,
-            // ]);
+            $order->status = 'unpaid';
+            $order->total_price = $totalPrice;
+            $order->stripe_session_id = $session->id;
+            $order->save();
+
+            return response()->json([
+                'redirectTo' => $session->url,
+            ]);
             
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -92,8 +101,8 @@ class StripeController extends Controller
             return response()->json([
                 'success' => 'Payment Success',
                 'customer' => $customer->name,
-                'session_id' => cache('order')['session_id'],
-                'order_status' => cache('order')['order_status']
+                'session_id' => $order->stripe_session_id,
+                'order_status' => $order->status
             ]);
         }
         catch(\Exception $e)

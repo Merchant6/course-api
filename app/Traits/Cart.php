@@ -64,4 +64,31 @@ trait Cart
 
         return $cartPrice;
     }
+
+    /**
+     * Return the cart data saved in Redis hash
+     * @param string $pattern
+     * @return array
+     */
+    public function getCartData(string $pattern)
+    {
+        $cursor = 0;
+        $fields = [];
+
+        do 
+        {
+            [$cursor, $result] = Redis::scan($cursor, 'MATCH', $pattern);
+
+            $fields = array_merge($fields, $result);
+
+        } while ($cursor != 0);
+
+        $cartData = [];
+        foreach($fields as $field)
+        {
+            $cartData[] = Redis::hgetall($field);
+        }
+
+        return $cartData;
+    }
 }

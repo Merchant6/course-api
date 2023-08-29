@@ -26,24 +26,18 @@ class RedisCartController extends Controller
         $userId = auth()->user()->id;
         $pattern = "user:$userId:course:*"; 
 
-        $cursor = 0;
-        $fields = [];
+        $cartData = $this->getCartData($pattern);
 
-        do 
+        if($cartData)
         {
-            [$cursor, $result] = Redis::scan($cursor, 'MATCH', $pattern);
-
-            $fields = array_merge($fields, $result);
-
-        } while ($cursor != 0);
-
-        $cartData = [];
-        foreach($fields as $field)
-        {
-            $cartData[] = Redis::hgetall($field);
+            return response()->json([
+                'cart' => $cartData
+            ], 200);
         }
 
-        return $cartData;
+        return response()->json([
+            'message' => 'Cart is empty.'
+        ], 404);
 
     }
 
