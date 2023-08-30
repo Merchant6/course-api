@@ -57,14 +57,14 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Stripe Checkout
     Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
-    // Route::get('/success', [StripeController::class, 'success'])->name('success');
-    // Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
+    
 
     Route::apiResource('/orders', OrderController::class);
 
     Route::get('/cart', [RedisCartController::class, 'index']);
     Route::get('/cart/total', [RedisCartController::class, 'cartTotal']);
     Route::post('/cart', [RedisCartController::class, 'store']);
+    Route::delete('/cart', [RedisCartController::class, 'destroy']);
 
 
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCompleted;
 use App\Models\Course;
 use App\Models\Order;
 use App\Traits\Cart;
@@ -167,7 +168,9 @@ class StripeController extends Controller
 
                     $order->status = 'paid';
                     $order->save();
-                    //Send Email to customer
+
+                    //Calling the OrderCompleted event to clear the cart
+                    event(new OrderCompleted($order));
                 }
 
             // ... handle other event types

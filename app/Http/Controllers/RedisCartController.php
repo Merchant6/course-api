@@ -84,9 +84,18 @@ class RedisCartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy()
     {
-        //
+        if($this->deleteCartData())
+        {
+            return response()->json([
+                'message' => 'Cart data cleared.'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Cart is already cleared.'
+        ], 404);
     }
 
     

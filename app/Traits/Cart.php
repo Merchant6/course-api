@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Redis;
 trait Cart
 {
 
-    public function addToCart(CartRequest $request)
+    /**
+     * Add courses to cart 
+     * @param \App\Http\Requests\CartRequest $request
+     * @return bool
+     */
+    public function addToCart(CartRequest $request): bool
     {
         $data = $request->validated();
 
@@ -34,21 +39,16 @@ trait Cart
         return false;
     }
 
-    public function cartTotal()
+    /**
+     * Return the cart total
+     * @return float|int
+     */
+    public function cartTotal(): float|int
     {
         $userId = auth()->user()->id;
         $pattern = "user:$userId:course:*"; 
 
-        $cursor = 0;
-        $fields = [];
-
-        do 
-        {
-            [$cursor, $result] = Redis::scan($cursor, 'MATCH', $pattern);
-
-            $fields = array_merge($fields, $result);
-
-        } while ($cursor != 0);
+        $fields = $this->scanCart($pattern);
 
         $cartData = [];
         $cartPrice = 0;
@@ -70,7 +70,46 @@ trait Cart
      * @param string $pattern
      * @return array
      */
-    public function getCartData(string $pattern)
+    public function getCartData(string $pattern): array
+    {
+        $fields = $this->scanCart($pattern);
+
+        $cartData = [];
+        foreach($fields as $field)
+        {
+            $cartData[] = Redis::hgetall($field);
+        }
+
+        return $cartData;
+    }
+
+    public function deleteCartData(): array
+    {
+        $userId = auth()->user()->id;
+        $pattern = "user:$userId:course:*"; 
+
+        $fields = $this->scanCart($pattern);
+
+        $deletedFields = [];
+        foreach ($fields as $field) {
+            $hashFields = Redis::hgetall($field);
+            
+            // Store the hash fields before deletion
+            $deletedFields[$field] = $hashFields;
+            
+            // Delete the hash fields using HDEL
+            Redis::hdel($field, array_keys($hashFields));
+        }
+
+        return $deletedFields;
+    }
+
+    /**
+     * Scan the cart in redis for a given pattern
+     * @param string $pattern
+     * @return array
+     */
+    public function scanCart(string $pattern): array
     {
         $cursor = 0;
         $fields = [];
@@ -83,17 +122,6 @@ trait Cart
 
         } while ($cursor != 0);
 
-        $cartData = [];
-        foreach($fields as $field)
-        {
-            $cartData[] = Redis::hgetall($field);
-        }
-
-        return $cartData;
-    }
-
-    public function deleteCartData()
-    {
-        
+        return $fields;
     }
 }
