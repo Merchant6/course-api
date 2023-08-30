@@ -99,7 +99,7 @@ class StripeController extends Controller
             }
 
             return response()->json([
-                'success' => 'Payment Success',
+                'success' => 'Payment Successfull',
                 'customer' => $customer->name,
                 'session_id' => $order->stripe_session_id,
                 'order_status' => $order->status
@@ -117,5 +117,64 @@ class StripeController extends Controller
         return response()->json([
             'cancel' => 'Payment cancelled'
         ]);
+    }
+
+    public function webhook(Request $request)
+    {
+        
+        // This is your Stripe CLI webhook secret for testing your endpoint locally.
+        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+
+        error_log('Hit on a webhook');
+
+        $payload = @file_get_contents('php://input');
+        $sig_header = $request->header('HTTP_STRIPE_SIGNATURE');
+        $event = null;
+
+        try 
+        {
+
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+
+        } 
+        catch(\UnexpectedValueException $e) 
+        {
+             // Invalid payload
+            // return response('', 400);
+            return $e->getMessage();
+
+        } 
+        catch(\Stripe\Exception\SignatureVerificationException $e) 
+        {
+            // Invalid signature
+            // return response('', 400);
+            return $e->getMessage();
+        }
+
+        // Handle the event
+        switch ($event->type) 
+        {
+            case 'checkout.session.completed':
+                $session = $event->data->object;
+                $sessionId = $session->id;
+
+                $order = $this->order->where('session_id', $sessionId)->first();
+                if($order && $order->status === 'unpaid')
+                {
+                    error_log('Order is true and also unpaid');
+
+                    $order->status = 'paid';
+                    $order->save();
+                    //Send Email to customer
+                }
+
+            // ... handle other event types
+            default:
+                echo 'Received unknown event type ' . $event->type;
+        }
+
+        return response('', 200);
     }
 }

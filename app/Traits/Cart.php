@@ -91,4 +91,9 @@ trait Cart
 
         return $cartData;
     }
+
+    public function deleteCartData()
+    {
+        
+    }
 }

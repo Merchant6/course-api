@@ -71,3 +71,4 @@ Route::middleware(['auth:api'])->group(function () {
 
 Route::get('/success', [StripeController::class, 'success'])->name('success');
 Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
+Route::post('/webhook', [StripeController::class, 'webhook'])->name('checkout.webhook');
