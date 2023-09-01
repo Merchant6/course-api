@@ -41,7 +41,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Get Details of the currently authenticated user
     Route::get('/user', function(Lesson $lesson){
-        $user = auth()->user();
+        $user = auth()->id();
         // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
         // return Lesson::latest()->first();
         return $user;
@@ -64,11 +64,10 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/cart', [RedisCartController::class, 'index']);
     Route::get('/cart/total', [RedisCartController::class, 'cartTotal']);
     Route::post('/cart', [RedisCartController::class, 'store']);
-    Route::delete('/cart', [RedisCartController::class, 'destroy']);
+    Route::delete('/cart', [RedisCartController::class, 'destroy'])->name('cart.delete');
 
 
 });
-
 Route::get('/success', [StripeController::class, 'success'])->name('success');
 Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
 Route::post('/webhook', [StripeController::class, 'webhook'])->name('checkout.webhook');

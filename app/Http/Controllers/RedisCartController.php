@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CartRequest;
 use App\Models\Course;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use App\Traits\Cart;
+use Illuminate\Support\Facades\Response;
 
 
 class RedisCartController extends Controller
@@ -21,9 +23,9 @@ class RedisCartController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $userId = auth()->user()->id;
+        $userId = auth()->id();
         $pattern = "user:$userId:course:*"; 
 
         $cartData = $this->getCartData($pattern);
@@ -85,8 +87,10 @@ class RedisCartController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy()
-    {
-        if($this->deleteCartData())
+    {       
+        $deleted = $this->deleteCartData(auth()->id());
+
+        if($deleted)
         {
             return response()->json([
                 'message' => 'Cart data cleared.'

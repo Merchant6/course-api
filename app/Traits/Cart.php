@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+
 use App\Http\Requests\CartRequest;
 use Illuminate\Support\Facades\Redis;
 
@@ -23,7 +24,7 @@ trait Cart
             return false;
         }
 
-        $cartName = 'user:' . auth()->user()->id. ':course:'.$data['course_id'];
+        $cartName = 'user:' . auth()->id(). ':course:'.$data['course_id'];
         $cartData = [
             'course_id' => $data['course_id'],
             'course_title' => $course->title,
@@ -45,7 +46,7 @@ trait Cart
      */
     public function cartTotal(): float|int
     {
-        $userId = auth()->user()->id;
+        $userId = auth()->id();
         $pattern = "user:$userId:course:*"; 
 
         $fields = $this->scanCart($pattern);
@@ -83,9 +84,13 @@ trait Cart
         return $cartData;
     }
 
-    public function deleteCartData(): array
+    /**
+     * Clear the cart stored in Redis
+     * @return array
+     */
+    public function deleteCartData(string $id): array
     {
-        $userId = auth()->user()->id;
+        $userId = $id;
         $pattern = "user:$userId:course:*"; 
 
         $fields = $this->scanCart($pattern);
@@ -94,10 +99,8 @@ trait Cart
         foreach ($fields as $field) {
             $hashFields = Redis::hgetall($field);
             
-            // Store the hash fields before deletion
             $deletedFields[$field] = $hashFields;
             
-            // Delete the hash fields using HDEL
             Redis::hdel($field, array_keys($hashFields));
         }
 

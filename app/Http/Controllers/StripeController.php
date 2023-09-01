@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderCompleted;
-use App\Models\Course;
 use App\Models\Order;
 use App\Traits\Cart;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Stripe\Charge;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,10 +15,7 @@ class StripeController extends Controller
 {   
     use Cart;
 
-    public function __construct(
-        protected StripeClient $stripe,
-        protected Order $order,
-        )
+    public function __construct(protected StripeClient $stripe, protected Order $order)
     {
 
     }
@@ -29,7 +25,7 @@ class StripeController extends Controller
         try {
 
             //Get the current user cart from Redis
-            $userId = auth()->user()->id;
+            $userId = auth()->id();
             $pattern = "user:$userId:course:*";
             $products = $this->getCartData($pattern);
 
@@ -71,7 +67,9 @@ class StripeController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
     }
 
@@ -91,24 +89,37 @@ class StripeController extends Controller
             $customer = $this->stripe->customers->retrieve($session->customer);
 
             $order = Order::where('stripe_session_id', $session->id)->first();
-            if (!$order) {
+            if (!$order) 
+            {
                 throw new NotFoundHttpException();
             }
-            if ($order->status === 'unpaid') {
+            if ($order->status === 'unpaid') 
+            {
                 $order->status = 'paid';
                 $order->save();
             }
 
+            if($order->status === 'paid')
+            {
+               $deleted =  $this->deleteCartData($order->user_id);
+
+                return response()->json([
+                    'message' => 'Payment Successfull',
+                    'customer' => $customer->name,
+                    'session_id' => $order->total_price,
+                    'order_status' => $order->status
+                ], 200);
+            }
+
             return response()->json([
-                'success' => 'Payment Successfull',
-                'customer' => $customer->name,
-                'session_id' => $order->stripe_session_id,
-                'order_status' => $order->status
-            ]);
+                'error' => 'Payment not successfull.'
+            ], 400);
         }
         catch(\Exception $e)
         {
-            throw new NotFoundHttpException();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
 
     }
@@ -144,14 +155,18 @@ class StripeController extends Controller
         {
              // Invalid payload
             // return response('', 400);
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
 
         } 
         catch(\Stripe\Exception\SignatureVerificationException $e) 
         {
             // Invalid signature
             // return response('', 400);
-            return $e->getMessage();
+            return response()->json([
+                $e->getMessage()
+            ]);
         }
 
         // Handle the event
@@ -170,7 +185,7 @@ class StripeController extends Controller
                     $order->save();
 
                     //Calling the OrderCompleted event to clear the cart
-                    event(new OrderCompleted($order));
+                    $this->deleteCartData($order->user_id);
                 }
 
             // ... handle other event types
@@ -178,6 +193,6 @@ class StripeController extends Controller
                 echo 'Received unknown event type ' . $event->type;
         }
 
-        return response('', 200);
+        return response()->json('', 200);
     }
 }
