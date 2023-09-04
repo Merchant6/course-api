@@ -5,6 +5,9 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RedisCartController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\StripeProductController;
+use App\Http\Controllers\StripeSubscriptionController;
+use App\Http\Controllers\StripeUserController;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
@@ -40,10 +43,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Get Details of the currently authenticated user
-    Route::get('/user', function(Lesson $lesson){
-        $user = auth()->id();
-        // return ['id: '.$user->id, 'name: '.$user->name, 'email: '.$user->email];
-        // return Lesson::latest()->first();
+    Route::get('/user', function(){
+        $user = auth()->user();
         return $user;
     });
 
@@ -57,10 +58,17 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Stripe Checkout
     Route::post('/checkout', [StripeController::class, 'checkout'])->name('checkout');
-    
 
+    //Stripe Customer
+    Route::post('/customer', [StripeUserController::class, 'createCustomer']);
+
+    //Stripe Products
+    Route::post('/products', [StripeProductController::class, 'createProduct']);
+
+    //Orders
     Route::apiResource('/orders', OrderController::class);
 
+    //Cart
     Route::get('/cart', [RedisCartController::class, 'index']);
     Route::get('/cart/total', [RedisCartController::class, 'cartTotal']);
     Route::post('/cart', [RedisCartController::class, 'store']);
@@ -68,6 +76,7 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 });
+
 Route::get('/success', [StripeController::class, 'success'])->name('success');
 Route::get('/cancel', [StripeController::class, 'cancel'])->name('cancel');
 Route::post('/webhook', [StripeController::class, 'webhook'])->name('checkout.webhook');

@@ -31,5 +31,9 @@ class Course extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function stripeProduct()
+    {
+        return $this->hasOne(StripeProduct::class);
+    }
 
 }
