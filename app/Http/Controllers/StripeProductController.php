@@ -20,7 +20,8 @@ class StripeProductController extends Controller
         $this->products->dispatch();
 
         return response()->json([
-            'message' => 'Creating Stripe Products, job started...'
+            'message' => 'Creating Stripe Products, job started...',
+            'Note' => 'If you are creating a existing product again, it will not create the product in the stripe dashboard.'
         ], 200);
     }
 }

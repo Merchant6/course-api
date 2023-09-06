@@ -18,4 +18,9 @@ class StripeProduct extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
+    public function price()
+    {
+        return $this->hasOne(Price::class);
+    }
 }

@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Stripe\StripeClient;
-use Stripe\StripeClientInterface;
 
 class CreateStripeProducts implements ShouldQueue, ShouldBeUnique
 {
@@ -38,10 +37,21 @@ class CreateStripeProducts implements ShouldQueue, ShouldBeUnique
                 'name' => $course->title,
             ]);
 
-            $stripeProduct->create([
-                'course_id' => $course->id,
-                'product_id' => $product->id
-            ]);
-        }
+            $courseExists = $stripeProduct->where('course_id', $course->id)->exists();
+            if(!$courseExists)
+            {
+                $data = $stripeProduct->create([
+                    'course_id' => $course->id,
+                    'product_id' => $product->id
+                ]); 
+
+                error_log($data);
+            }
+
+            if($courseExists)
+            {
+                error_log($course->id . " : Exists " . PHP_EOL);
+            }
+        }      
     }
 }
