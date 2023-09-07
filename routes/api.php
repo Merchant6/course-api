@@ -69,6 +69,9 @@ Route::middleware(['auth:api'])->group(function () {
     //Stripe Price
     Route::post('/price', [StripePriceController::class, 'createPrice']);
 
+    //Stripe Subscription
+    Route::post('/subscription', [StripeSubscriptionController::class, 'createSubscription']);
+
     //Orders
     Route::apiResource('/orders', OrderController::class);
 

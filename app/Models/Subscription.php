@@ -5,18 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class Subscription extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'email',
-        'name',
-        'customer_id'
+        'customer_id',
+        'subscription_id'
     ];
 
-    public function subscription()
+    public function customer()
     {
-        return $this->hasMany(Subscription::class);
+        return $this->belongsTo(Customer::class);
     }
 }

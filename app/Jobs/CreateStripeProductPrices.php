@@ -48,9 +48,7 @@ class CreateStripeProductPrices implements ShouldQueue
                 $productPrice->price_id = $price->id;
                 $productPrice->save();     
                 
-                error_log($price . PHP_EOL);
-                // error_log('Saving the data' . $createPrice . PHP_EOL);
-                // error_log($createPrice . PHP_EOL);
+                error_log('Product Created: ' . $product->course->title . PHP_EOL);
 
             }
     }

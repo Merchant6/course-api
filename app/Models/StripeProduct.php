@@ -21,6 +21,6 @@ class StripeProduct extends Model
 
     public function price()
     {
-        return $this->hasOne(Price::class);
+        return $this->hasOne(Price::class, 'product_id');
     }
 }
