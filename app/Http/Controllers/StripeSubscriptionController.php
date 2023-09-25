@@ -18,7 +18,7 @@ class StripeSubscriptionController extends Controller
     protected Customer $customer, 
     protected StripeProduct $stripeProduct, 
     protected Subscription $subscription,
-    protected PaymentMethod $paymentMethod)
+    protected PaymentMethod $paymentMethod,)
     {
 
     }
@@ -70,5 +70,20 @@ class StripeSubscriptionController extends Controller
         return response()->json([
             'message' => 'There was an issue creating your subscription, try again later.',
         ], 200);
+    }
+
+    public function listSubscriptions()
+    {
+        $customerId = $this->customer
+        ->where('email', auth()->user()->email)
+        ->first(['id', 'customer_id']);
+        
+        $customer = $customerId->customer_id;
+
+        $subscriptions = $this->stripe->subscriptions->all([
+            'customer' => $customer
+        ]);
+
+        return $subscriptions->data;
     }
 }

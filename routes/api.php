@@ -71,6 +71,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/price', [StripePriceController::class, 'createPrice']);
 
     //Stripe Subscription
+    Route::get('/subscriptions/list', [StripeSubscriptionController::class, 'listSubscriptions']);
     Route::post('/subscription', [StripeSubscriptionController::class, 'createSubscription']);
 
     //Stripe Payment Method
