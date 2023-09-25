@@ -5,6 +5,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RedisCartController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\StripePaymentMethodController;
 use App\Http\Controllers\StripePriceController;
 use App\Http\Controllers\StripeProductController;
 use App\Http\Controllers\StripeSubscriptionController;
@@ -71,6 +72,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Stripe Subscription
     Route::post('/subscription', [StripeSubscriptionController::class, 'createSubscription']);
+
+    //Stripe Payment Method
+    Route::post('/payment/method', [StripePaymentMethodController::class, 'createPaymentMethod']);
 
     //Orders
     Route::apiResource('/orders', OrderController::class);
