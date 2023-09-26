@@ -14,6 +14,9 @@ class StripeSubscriptionController extends Controller
 {
     use Cart;
 
+    public const ACTIVE = 'active';
+    public const CANCELED = 'canceled';
+
     public function __construct(protected StripeClient $stripe, 
     protected Customer $customer, 
     protected StripeProduct $stripeProduct, 
@@ -57,7 +60,8 @@ class StripeSubscriptionController extends Controller
 
         $createSubscription = $this->subscription->create([
             'customer_id' => $customer->id,
-            'subscription_id' => $subscription->id
+            'subscription_id' => $subscription->id,
+            'status' => self::ACTIVE
         ]);
 
         if($subscription && $createSubscription)
@@ -69,7 +73,7 @@ class StripeSubscriptionController extends Controller
 
         return response()->json([
             'message' => 'There was an issue creating your subscription, try again later.',
-        ], 200);
+        ], 400);
     }
 
     public function listSubscriptions()
@@ -77,7 +81,7 @@ class StripeSubscriptionController extends Controller
         $customerId = $this->customer
         ->where('email', auth()->user()->email)
         ->first(['id', 'customer_id']);
-        
+
         $customer = $customerId->customer_id;
 
         $subscriptions = $this->stripe->subscriptions->all([
@@ -85,5 +89,40 @@ class StripeSubscriptionController extends Controller
         ]);
 
         return $subscriptions->data;
+    }
+
+    public function cancelSubscription(Request $request)
+    {   
+        $subscriptionId = $request->subscription_id;
+
+        $subscription = $this->subscription
+        ->where('subscription_id', $subscriptionId)
+        ->where('status', self::ACTIVE)
+        ->first(['subscription_id', 'status']);
+
+        // return $subscription;
+
+        if($subscription || $subscription == true)
+        {
+            $this->stripe->subscriptions->cancel(
+                $subscriptionId,
+                []
+            );
+
+            $this->subscription
+            ->where('subscription_id', $subscriptionId)
+            ->update([
+                'status' => 'canceled'
+            ]);
+
+            return response()->json([
+                'message' => 'Subscription cancelled successfully.',
+                'status' => self::CANCELED
+            ], 200);
+        }
+        
+        return response()->json([
+            'message' => 'Subscription cannot be found.'
+        ], 404);
     }
 }

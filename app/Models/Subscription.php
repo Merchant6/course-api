@@ -11,7 +11,8 @@ class Subscription extends Model
 
     protected $fillable = [
         'customer_id',
-        'subscription_id'
+        'subscription_id',
+        'status'
     ];
 
     public function customer()
