@@ -102,7 +102,7 @@ class StripeSubscriptionController extends Controller
 
         // return $subscription;
 
-        if($subscription || $subscription == true)
+        if($subscription)
         {
             $this->stripe->subscriptions->cancel(
                 $subscriptionId,
@@ -112,7 +112,7 @@ class StripeSubscriptionController extends Controller
             $this->subscription
             ->where('subscription_id', $subscriptionId)
             ->update([
-                'status' => 'canceled'
+                'status' => self::CANCELED
             ]);
 
             return response()->json([
@@ -125,4 +125,37 @@ class StripeSubscriptionController extends Controller
             'message' => 'Subscription cannot be found.'
         ], 404);
     }
+
+    // public function resumeSubscription(Request $request)
+    // {
+    //     $subscriptionId = $request->subscription_id;
+
+    //     $subscription = $this->subscription
+    //     ->where('subscription_id', $subscriptionId)
+    //     ->where('status', self::CANCELED)
+    //     ->first(['subscription_id', 'status']);
+
+    //     if($subscription)
+    //     {
+    //         $this->stripe->subscriptions->resume(
+    //             $subscriptionId,
+    //             ['billing_cycle_anchor' => 'now']
+    //         );
+
+    //         $this->subscription
+    //         ->where('subscription_id', $subscriptionId)
+    //         ->update([
+    //             'status' => self::ACTIVE,
+    //         ]);
+
+    //         return response()->json([
+    //             'message' => 'Subscription activated successfully.',
+    //             'status' => self::ACTIVE
+    //         ], 200);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'Subscription cannot be found.'
+    //     ], 404);
+    // }
 }
